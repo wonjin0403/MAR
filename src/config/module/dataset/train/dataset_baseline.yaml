@@ -1,0 +1,6 @@
+_target_: common.dataset.CT_Dataset
+fold_path: "/app/MAR/HN-CT-MAR/codes/final_all_data_1_fold.json"
+dataset_type: "Train"
+# torch_type: float
+data_type: npy
+infer: False

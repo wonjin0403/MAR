@@ -1,0 +1,19 @@
+_target_: core.module.masked_mse.MAR
+
+defaults:
+  - model: fusionnet
+  - dataset: masked_mse
+
+criterion:
+  _target_: common.loss.Masked_MSE_SSIM_Loss
+  ssim_rate: 0.1
+  device: "cuda:3"
+
+optimizer:
+  _target_: torch.optim.Adam
+  lr: 0.001
+
+save_output_only: False
+test_save_path: "./output"
+batch_size: 16
+num_worker: 8

@@ -1,0 +1,26 @@
+save_path: ??
+
+hydra:
+  run:
+    dir: ${save_path}/hydra_outputs/${now:%Y-%m-%d}/${now:%H-%M-%S}
+
+defaults:
+  - _self_
+  - module: baseline
+
+Trainer:
+  _target_: lightning.pytorch.Trainer
+  accelerator: "gpu"
+  devices: "3,4,5"
+  precision: 32
+  accumulate_grad_batches: 1
+  default_root_dir: ${save_path}
+  max_epochs: 200
+  logger:
+    _target_: lightning.pytorch.loggers.TensorBoardLogger
+    save_dir: ${save_path}
+
+  callbacks:
+    _target_: lightning.pytorch.callbacks.ModelCheckpoint
+    monitor: "valid/loss"
+    mode: "min"

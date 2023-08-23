@@ -1,0 +1,6 @@
+_target_: core.models.UNet
+input_dim: 1
+num_feature: 32 
+#feature 64로 변경해서 다시 한번
+output_dim: 1
+out_clamp: None

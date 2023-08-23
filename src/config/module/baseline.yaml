@@ -1,0 +1,19 @@
+_target_: core.module.baseline.MAR
+defaults:
+  - _self_
+  - model: unet
+  - dataset: baseline
+
+criterion:
+  _target_: common.loss.MSE_SSIM_Loss
+  ssim_rate: 0.1
+  device: "cuda:3"
+
+optimizer:
+  _target_: torch.optim.Adam
+  lr: 0.001
+
+save_output_only: False
+test_save_path: "./output"
+batch_size: 16
+num_worker: 8

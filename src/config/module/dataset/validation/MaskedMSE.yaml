@@ -1,0 +1,6 @@
+_target_: common.dataset.Masked_CT_Dataset
+fold_path: "/app/MAR/data/123_fold.json"
+dataset_type: "Valid"
+# torch_type: float
+data_type: npy
+infer: False

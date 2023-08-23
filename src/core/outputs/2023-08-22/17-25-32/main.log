@@ -1,0 +1,6 @@
+[2023-08-22 17:25:37,844][torch.distributed.nn.jit.instantiator][INFO] - Created a temporary directory at /tmp/tmp_n_1wfb2
+[2023-08-22 17:25:37,844][torch.distributed.nn.jit.instantiator][INFO] - Writing /tmp/tmp_n_1wfb2/_remote_module_non_scriptable.py
+[2023-08-22 17:25:38,380][lightning.pytorch.utilities.rank_zero][INFO] - GPU available: True (cuda), used: True
+[2023-08-22 17:25:38,380][lightning.pytorch.utilities.rank_zero][INFO] - TPU available: False, using: 0 TPU cores
+[2023-08-22 17:25:38,380][lightning.pytorch.utilities.rank_zero][INFO] - IPU available: False, using: 0 IPUs
+[2023-08-22 17:25:38,380][lightning.pytorch.utilities.rank_zero][INFO] - HPU available: False, using: 0 HPUs

@@ -1,0 +1,5 @@
+defaults:
+  - _self_
+  - train: dataset_baseline
+  - validation: dataset_baseline
+  - test: dataset_baseline
