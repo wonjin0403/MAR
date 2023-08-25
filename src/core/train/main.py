@@ -2,7 +2,7 @@ import hydra
 from omegaconf import DictConfig, OmegaConf
 from hydra.utils import instantiate
 import sys
-sys.path.append("/app/Final_MAR_code/src/")
+sys.path.append("../")
 
 import random
 import numpy as np

@@ -1,0 +1,54 @@
+save_path: ./src/output/masked_mse
+Trainer:
+  _target_: lightning.pytorch.Trainer
+  accelerator: gpu
+  devices: 0,1
+  precision: 32
+  accumulate_grad_batches: 1
+  default_root_dir: ${save_path}
+  max_epochs: 200
+  logger:
+    _target_: lightning.pytorch.loggers.TensorBoardLogger
+    save_dir: ${save_path}
+  callbacks:
+    _target_: lightning.pytorch.callbacks.ModelCheckpoint
+    monitor: valid/loss
+    mode: min
+module:
+  model:
+    _target_: core.models.Fusionnet_Original
+    input_dim: 1
+    num_feature: 32
+    output_dim: 1
+    out_clamp: None
+  dataset:
+    train:
+      _target_: common.dataset.Masked_CT_Dataset
+      fold_path: /app/home/jhk22/MAR/HN-CT-MAR/codes/final_all_data_1_fold.json
+      dataset_type: Train
+      data_type: npy
+      infer: false
+    validation:
+      _target_: common.dataset.Masked_CT_Dataset
+      fold_path: /app/home/jhk22/MAR/HN-CT-MAR/codes/final_all_data_1_fold.json
+      dataset_type: Valid
+      data_type: npy
+      infer: false
+    test:
+      _target_: common.dataset.Masked_CT_Dataset
+      fold_path: /app/home/jhk22/MAR/HN-CT-MAR/codes/final_all_data_1_fold.json
+      dataset_type: Test
+      data_type: npy
+      infer: false
+  _target_: core.module.masked_mse.MAR
+  criterion:
+    _target_: common.loss.Masked_MSE_SSIM_Loss
+    ssim_rate: 0.1
+    device: cuda:0
+  optimizer:
+    _target_: torch.optim.Adam
+    lr: 0.001
+  save_output_only: false
+  test_save_path: ./src/output/masked_mse
+  batch_size: 8
+  num_worker: 8

@@ -18,7 +18,7 @@ from monai.transforms import (
 )
 from PIL import Image
 import sys
-sys.path.append("/app/Final_MAR_code/src")
+sys.path.append("../")
 from common.utils.normalization import min_max_normalization
 
 class Masked_CT_Dataset(Dataset):
@@ -49,7 +49,7 @@ class Masked_CT_Dataset(Dataset):
                     padding_mode="zeros"
                     )
             ])
-        self.bone_mask = "/app/MAR/data/mask_all_data"
+        self.bone_mask = "/app/home/jhk22/MAR/data/mask_all_data"
         self.torch_type = torch.float32 # if torch_type == float else torch.half # float32 or float16
         self.data_type = data_type
         self.infer = infer

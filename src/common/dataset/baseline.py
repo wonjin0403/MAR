@@ -16,7 +16,7 @@ from monai.transforms import (
     RandFlip
 )
 import sys
-sys.path.append("/app/Final_MAR_code/src")
+sys.path.append("../")
 from common.utils.normalization import min_max_normalization
 
 class CT_Dataset(Dataset):

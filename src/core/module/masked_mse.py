@@ -7,7 +7,7 @@ from skimage.metrics import peak_signal_noise_ratio as compare_psnr
 import lightning as pl
 
 import sys
-sys.path.append("/app/Final_MAR_code/src")
+sys.path.append("../")
 from common.utils.set_dataloader import set_dataloader
 from common.utils.utils import pearson_correlation_coeff, save_as_dicom
 
@@ -49,7 +49,7 @@ class MAR(pl.LightningModule):
     
     def _metric(self, target, output):
         _pcc = pearson_correlation_coeff(target, output)
-        _ssim = compare_ssim(np.moveaxis(target, 0, -1), np.moveaxis(output, 0, -1), multichannel=True)
+        _ssim = compare_ssim(np.moveaxis(target, 0, -1), np.moveaxis(output, 0, -1), multichannel=True, channel_axis=2, data_range=float())
         _psnr = compare_psnr(target, output, data_range=2)
         _mse = (np.square(target - output)).mean(axis=None)
         return _pcc, _ssim, _psnr, _mse
@@ -76,6 +76,7 @@ class MAR(pl.LightningModule):
             psnr_list.append(_psnr)
             mse_list.append(_mse)
         results = {"val_loss": loss, "pcc": pcc_list, "ssim": ssim_list, "psnr": psnr_list, "mse": mse_list}
+        print("Val_results:", results)
         self.validation_step_outputs.append(results)
         return results
     

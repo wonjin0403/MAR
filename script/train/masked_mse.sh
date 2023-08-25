@@ -1,12 +1,12 @@
 MAR_PATH="./src/output/masked_mse"
-FOLD_PATH="/app/MAR/data/123_fold.json"
+FOLD_PATH="/app/home/jhk22/MAR/HN-CT-MAR/codes/final_all_data_1_fold.json"
 
-python src/core/train/main.py \
+python /app/data2/jhk22/MAR-main/src/core/train/main.py \
 save_path="$MAR_PATH" \
-Trainer.devices=\"6,7\" \
+Trainer.devices=\"0,1\" \
 module=masked_mse \
 module.batch_size=8 \
-module.criterion.device="cuda:6" \
+module.criterion.device="cuda:0" \
 module.dataset.train.fold_path="$FOLD_PATH" \
 module.dataset.validation.fold_path="$FOLD_PATH" \
 module.dataset.test.fold_path="$FOLD_PATH" \

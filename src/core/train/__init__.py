@@ -1,4 +1,4 @@
 import sys
-sys.path.append("/app/Final_MAR_code/src")
+sys.path.append("../")
 import core
 import common
