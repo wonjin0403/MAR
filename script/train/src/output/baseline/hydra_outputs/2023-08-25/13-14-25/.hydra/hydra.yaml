@@ -112,19 +112,18 @@ hydra:
     hydra:
     - hydra.mode=RUN
     task:
-    - save_path=./src/output/masked_mse
-    - Trainer.devices="0,1"
-    - module=masked_mse
+    - save_path=./src/output/baseline
+    - Trainer.devices="2,3"
     - module.batch_size=8
-    - module.criterion.device=cuda:0
+    - module.criterion.device=cuda:2
     - module.dataset.train.fold_path=/app/home/jhk22/MAR/HN-CT-MAR/codes/final_all_data_1_fold.json
     - module.dataset.validation.fold_path=/app/home/jhk22/MAR/HN-CT-MAR/codes/final_all_data_1_fold.json
     - module.dataset.test.fold_path=/app/home/jhk22/MAR/HN-CT-MAR/codes/final_all_data_1_fold.json
-    - module.test_save_path=./src/output/masked_mse
+    - module.test_save_path=./src/output/baseline
   job:
     name: main
     chdir: null
-    override_dirname: Trainer.devices="0,1",module.batch_size=8,module.criterion.device=cuda:0,module.dataset.test.fold_path=/app/home/jhk22/MAR/HN-CT-MAR/codes/final_all_data_1_fold.json,module.dataset.train.fold_path=/app/home/jhk22/MAR/HN-CT-MAR/codes/final_all_data_1_fold.json,module.dataset.validation.fold_path=/app/home/jhk22/MAR/HN-CT-MAR/codes/final_all_data_1_fold.json,module.test_save_path=./src/output/masked_mse,module=masked_mse,save_path=./src/output/masked_mse
+    override_dirname: Trainer.devices="2,3",module.batch_size=8,module.criterion.device=cuda:2,module.dataset.test.fold_path=/app/home/jhk22/MAR/HN-CT-MAR/codes/final_all_data_1_fold.json,module.dataset.train.fold_path=/app/home/jhk22/MAR/HN-CT-MAR/codes/final_all_data_1_fold.json,module.dataset.validation.fold_path=/app/home/jhk22/MAR/HN-CT-MAR/codes/final_all_data_1_fold.json,module.test_save_path=./src/output/baseline,save_path=./src/output/baseline
     id: ???
     num: ???
     config_name: config
@@ -143,20 +142,20 @@ hydra:
     - path: hydra.conf
       schema: pkg
       provider: hydra
-    - path: /app/data2/jhk22/MAR-main/src/config
+    - path: /app/data2/jhk22/MAR/src/config
       schema: file
       provider: main
     - path: ''
       schema: structured
       provider: schema
-    output_dir: /app/data2/jhk22/MAR/script/train/src/output/masked_mse/hydra_outputs/2023-08-25/11-50-11
+    output_dir: /app/data2/jhk22/MAR/script/train/src/output/baseline/hydra_outputs/2023-08-25/13-14-25
     choices:
-      module: masked_mse
-      module/dataset: masked_mse
-      module/dataset/test: MaskedMSE
-      module/dataset/validation: MaskedMSE
-      module/dataset/train: MaskedMSE
-      module/model: fusionnet
+      module: baseline
+      module/dataset: baseline
+      module/dataset/test: dataset_baseline
+      module/dataset/validation: dataset_baseline
+      module/dataset/train: dataset_baseline
+      module/model: unet
       hydra/env: default
       hydra/callbacks: null
       hydra/job_logging: default

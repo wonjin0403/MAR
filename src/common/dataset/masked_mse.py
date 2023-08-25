@@ -18,7 +18,7 @@ from monai.transforms import (
 )
 from PIL import Image
 import sys
-sys.path.append("../")
+sys.path.append("../../")
 from common.utils.normalization import min_max_normalization
 
 class Masked_CT_Dataset(Dataset):

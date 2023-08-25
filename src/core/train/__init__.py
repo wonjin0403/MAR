@@ -1,4 +1,5 @@
 import sys
-sys.path.append("../")
+import os
+sys.path.append(os.path.realpath("../../src/"))
 import core
 import common

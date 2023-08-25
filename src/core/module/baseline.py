@@ -5,9 +5,9 @@ from torch.utils.data import Dataset
 from skimage.metrics import structural_similarity as compare_ssim
 from skimage.metrics import peak_signal_noise_ratio as compare_psnr
 import lightning as pl
-
+import os
 import sys
-sys.path.append("../")
+sys.path.append(os.path.realpath("../../src/"))
 from common.utils.set_dataloader import set_dataloader
 from common.utils.utils import pearson_correlation_coeff, save_as_dicom
 
@@ -48,7 +48,7 @@ class MAR(pl.LightningModule):
     
     def _metric(self, target, output):
         _pcc = pearson_correlation_coeff(target, output)
-        _ssim = compare_ssim(np.moveaxis(target, 0, -1), np.moveaxis(output, 0, -1), multichannel=True, channel_axis=2, data_range=float())
+        _ssim = compare_ssim(np.moveaxis(target, 0, -1), np.moveaxis(output, 0, -1), multichannel=True, channel_axis=2, data_range=float(2))
         _psnr = compare_psnr(target, output, data_range=2)
         _mse = (np.square(target - output)).mean(axis=None)
         return _pcc, _ssim, _psnr, _mse

@@ -1,8 +1,0 @@
-[2023-08-25 11:50:18,589][torch.distributed.nn.jit.instantiator][INFO] - Created a temporary directory at /tmp/tmp62dlog_c
-[2023-08-25 11:50:18,590][torch.distributed.nn.jit.instantiator][INFO] - Writing /tmp/tmp62dlog_c/_remote_module_non_scriptable.py
-[2023-08-25 11:50:19,848][lightning.fabric.utilities.distributed][INFO] - Initializing distributed: GLOBAL_RANK: 1, MEMBER: 2/2
-[2023-08-25 11:50:19,880][torch.distributed.distributed_c10d][INFO] - Added key: store_based_barrier_key:1 to store for rank: 1
-[2023-08-25 11:50:19,881][torch.distributed.distributed_c10d][INFO] - Rank 1: Completed store-based barrier for key:store_based_barrier_key:1 with 2 nodes.
-[2023-08-25 11:50:19,882][lightning.pytorch.loggers.tensorboard][WARNING] - Missing logger folder: ./src/output/masked_mse/lightning_logs
-[2023-08-25 11:50:21,364][lightning.pytorch.accelerators.cuda][INFO] - LOCAL_RANK: 1 - CUDA_VISIBLE_DEVICES: [0,1,2,3]
-[2023-08-25 11:50:42,483][torch.nn.parallel.distributed][INFO] - Reducer buckets have been rebuilt in this iteration.

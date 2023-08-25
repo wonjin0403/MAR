@@ -2,12 +2,12 @@ import hydra
 from omegaconf import DictConfig, OmegaConf
 from hydra.utils import instantiate
 import sys
-sys.path.append("../")
-
 import random
 import numpy as np
 import os
+sys.path.append(os.path.realpath("../../src/"))
 import torch
+
 def seed_everything(seed: int = 42):
     random.seed(seed)
     np.random.seed(seed)
