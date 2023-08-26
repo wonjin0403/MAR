@@ -1,0 +1,7 @@
+[2023-08-26 22:39:14,502][torch.distributed.nn.jit.instantiator][INFO] - Created a temporary directory at /tmp/tmp3sshfd72
+[2023-08-26 22:39:14,502][torch.distributed.nn.jit.instantiator][INFO] - Writing /tmp/tmp3sshfd72/_remote_module_non_scriptable.py
+[2023-08-26 22:39:16,069][lightning.fabric.utilities.distributed][INFO] - Initializing distributed: GLOBAL_RANK: 1, MEMBER: 2/2
+[2023-08-26 22:39:16,101][torch.distributed.distributed_c10d][INFO] - Added key: store_based_barrier_key:1 to store for rank: 1
+[2023-08-26 22:39:16,122][torch.distributed.distributed_c10d][INFO] - Rank 1: Completed store-based barrier for key:store_based_barrier_key:1 with 2 nodes.
+[2023-08-26 22:39:18,069][lightning.pytorch.accelerators.cuda][INFO] - LOCAL_RANK: 1 - CUDA_VISIBLE_DEVICES: [0,1,2,3,4,5,6,7]
+[2023-08-26 22:39:38,068][torch.nn.parallel.distributed][INFO] - Reducer buckets have been rebuilt in this iteration.

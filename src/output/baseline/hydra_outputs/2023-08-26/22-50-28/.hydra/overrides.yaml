@@ -1,0 +1,9 @@
+- save_path=./src/output/baseline
+- Trainer.devices="1,2"
+- module.batch_size=8
+- module.save_path='/app/Final_MAR/src/output/baseline/lightning_logs/version_0/checkpoints/epoch=1-step=596.ckpt'
+- module.criterion.device=cuda:1
+- module.dataset.train.fold_path=/app/MAR/data/123_fold.json
+- module.dataset.validation.fold_path=/app/MAR/data/123_fold.json
+- module.dataset.test.fold_path=/app/MAR/data/123_fold.json
+- module.test_save_path=./src/output/baseline

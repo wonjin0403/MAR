@@ -1,0 +1,54 @@
+save_path: ./src/output/baseline
+Trainer:
+  _target_: lightning.pytorch.Trainer
+  accelerator: gpu
+  devices: 1,2
+  precision: 32
+  accumulate_grad_batches: 1
+  default_root_dir: ${save_path}
+  max_epochs: 200
+  logger:
+    _target_: lightning.pytorch.loggers.TensorBoardLogger
+    save_dir: ${save_path}
+  callbacks:
+    _target_: lightning.pytorch.callbacks.ModelCheckpoint
+    monitor: valid/loss
+    mode: min
+module:
+  _target_: core.module.baseline.MAR
+  criterion:
+    _target_: common.loss.MSE_SSIM_Loss
+    ssim_rate: 0.1
+    device: cuda:1
+  optimizer:
+    _target_: torch.optim.Adam
+    lr: 0.001
+  save_output_only: false
+  test_save_path: ./src/output/baseline
+  batch_size: 8
+  num_worker: 8
+  model:
+    _target_: core.models.UNet
+    input_dim: 1
+    num_feature: 32
+    output_dim: 1
+    out_clamp: None
+  dataset:
+    train:
+      _target_: common.dataset.CT_Dataset
+      fold_path: /app/MAR/data/123_fold.json
+      dataset_type: Train
+      data_type: npy
+      infer: false
+    validation:
+      _target_: common.dataset.CT_Dataset
+      fold_path: /app/MAR/data/123_fold.json
+      dataset_type: Valid
+      data_type: npy
+      infer: false
+    test:
+      _target_: common.dataset.CT_Dataset
+      fold_path: /app/MAR/data/123_fold.json
+      dataset_type: Test
+      data_type: npy
+      infer: false

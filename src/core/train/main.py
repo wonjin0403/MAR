@@ -5,7 +5,8 @@ import sys
 import random
 import numpy as np
 import os
-sys.path.append(os.path.realpath("../../src/"))
+sys.path.append(os.path.realpath("./src"))
+import core
 import torch
 
 def seed_everything(seed: int = 42):

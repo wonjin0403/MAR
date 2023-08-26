@@ -17,3 +17,4 @@ save_output_only: False
 test_save_path: "./output"
 batch_size: 16
 num_worker: 8
+save_path: ??

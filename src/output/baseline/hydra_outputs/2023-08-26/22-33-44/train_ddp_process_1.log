@@ -1,0 +1,6 @@
+[2023-08-26 22:33:54,375][torch.distributed.nn.jit.instantiator][INFO] - Created a temporary directory at /tmp/tmp8_jk7bwn
+[2023-08-26 22:33:54,375][torch.distributed.nn.jit.instantiator][INFO] - Writing /tmp/tmp8_jk7bwn/_remote_module_non_scriptable.py
+[2023-08-26 22:33:55,878][lightning.fabric.utilities.distributed][INFO] - Initializing distributed: GLOBAL_RANK: 1, MEMBER: 2/2
+[2023-08-26 22:33:55,988][torch.distributed.distributed_c10d][INFO] - Added key: store_based_barrier_key:1 to store for rank: 1
+[2023-08-26 22:33:55,999][torch.distributed.distributed_c10d][INFO] - Rank 1: Completed store-based barrier for key:store_based_barrier_key:1 with 2 nodes.
+[2023-08-26 22:33:57,922][lightning.pytorch.accelerators.cuda][INFO] - LOCAL_RANK: 1 - CUDA_VISIBLE_DEVICES: [0,1,2,3,4,5,6,7]

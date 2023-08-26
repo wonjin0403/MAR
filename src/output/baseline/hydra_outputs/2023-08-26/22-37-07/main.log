@@ -1,0 +1,27 @@
+[2023-08-26 22:37:10,175][torch.distributed.nn.jit.instantiator][INFO] - Created a temporary directory at /tmp/tmp53tddpe_
+[2023-08-26 22:37:10,176][torch.distributed.nn.jit.instantiator][INFO] - Writing /tmp/tmp53tddpe_/_remote_module_non_scriptable.py
+[2023-08-26 22:37:10,453][lightning.pytorch.utilities.rank_zero][INFO] - GPU available: True (cuda), used: True
+[2023-08-26 22:37:10,453][lightning.pytorch.utilities.rank_zero][INFO] - TPU available: False, using: 0 TPU cores
+[2023-08-26 22:37:10,453][lightning.pytorch.utilities.rank_zero][INFO] - IPU available: False, using: 0 IPUs
+[2023-08-26 22:37:10,453][lightning.pytorch.utilities.rank_zero][INFO] - HPU available: False, using: 0 HPUs
+[2023-08-26 22:37:11,659][lightning.fabric.utilities.distributed][INFO] - Initializing distributed: GLOBAL_RANK: 0, MEMBER: 1/2
+[2023-08-26 22:37:18,372][torch.distributed.distributed_c10d][INFO] - Added key: store_based_barrier_key:1 to store for rank: 0
+[2023-08-26 22:37:18,372][torch.distributed.distributed_c10d][INFO] - Rank 0: Completed store-based barrier for key:store_based_barrier_key:1 with 2 nodes.
+[2023-08-26 22:37:18,372][lightning.pytorch.utilities.rank_zero][INFO] - ----------------------------------------------------------------------------------------------------
+distributed_backend=nccl
+All distributed processes registered. Starting with 2 processes
+----------------------------------------------------------------------------------------------------
+
+[2023-08-26 22:37:18,378][lightning.pytorch.utilities.rank_zero][INFO] - You are using a CUDA device ('NVIDIA GeForce RTX 3090') that has Tensor Cores. To properly utilize them, you should set `torch.set_float32_matmul_precision('medium' | 'high')` which will trade-off precision for performance. For more details, read https://pytorch.org/docs/stable/generated/torch.set_float32_matmul_precision.html#torch.set_float32_matmul_precision
+[2023-08-26 22:37:20,218][lightning.pytorch.accelerators.cuda][INFO] - LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [0,1,2,3,4,5,6,7]
+[2023-08-26 22:37:20,241][lightning.pytorch.callbacks.model_summary][INFO] - 
+  | Name      | Type          | Params
+--------------------------------------------
+0 | model     | UNet          | 5.8 M 
+1 | criterion | MSE_SSIM_Loss | 0     
+--------------------------------------------
+5.8 M     Trainable params
+0         Non-trainable params
+5.8 M     Total params
+23.396    Total estimated model params size (MB)
+[2023-08-26 22:37:39,426][torch.nn.parallel.distributed][INFO] - Reducer buckets have been rebuilt in this iteration.

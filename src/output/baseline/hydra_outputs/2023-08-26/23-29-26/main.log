@@ -1,0 +1,7 @@
+[2023-08-26 23:29:29,193][torch.distributed.nn.jit.instantiator][INFO] - Created a temporary directory at /tmp/tmpozmd10yd
+[2023-08-26 23:29:29,194][torch.distributed.nn.jit.instantiator][INFO] - Writing /tmp/tmpozmd10yd/_remote_module_non_scriptable.py
+[2023-08-26 23:29:29,644][lightning.pytorch.utilities.rank_zero][INFO] - GPU available: True (cuda), used: True
+[2023-08-26 23:29:29,645][lightning.pytorch.utilities.rank_zero][INFO] - TPU available: False, using: 0 TPU cores
+[2023-08-26 23:29:29,645][lightning.pytorch.utilities.rank_zero][INFO] - IPU available: False, using: 0 IPUs
+[2023-08-26 23:29:29,645][lightning.pytorch.utilities.rank_zero][INFO] - HPU available: False, using: 0 HPUs
+[2023-08-26 23:29:32,161][lightning.fabric.utilities.distributed][INFO] - Initializing distributed: GLOBAL_RANK: 0, MEMBER: 1/2

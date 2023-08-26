@@ -1,0 +1,5 @@
+- save_path=./src/output/baseline
+- Trainer.devices="1,2"
+- module.batch_size=8
+- module.criterion.device=cuda:1
+- module.test_save_path=./src/output/baseline

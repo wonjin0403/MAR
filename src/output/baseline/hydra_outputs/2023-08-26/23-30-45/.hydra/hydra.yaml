@@ -1,0 +1,169 @@
+hydra:
+  run:
+    dir: ${save_path}/hydra_outputs/${now:%Y-%m-%d}/${now:%H-%M-%S}
+  sweep:
+    dir: multirun/${now:%Y-%m-%d}/${now:%H-%M-%S}
+    subdir: ${hydra.job.num}
+  launcher:
+    _target_: hydra._internal.core_plugins.basic_launcher.BasicLauncher
+  sweeper:
+    _target_: hydra._internal.core_plugins.basic_sweeper.BasicSweeper
+    max_batch_size: null
+    params: null
+  help:
+    app_name: ${hydra.job.name}
+    header: '${hydra.help.app_name} is powered by Hydra.
+
+      '
+    footer: 'Powered by Hydra (https://hydra.cc)
+
+      Use --hydra-help to view Hydra specific help
+
+      '
+    template: '${hydra.help.header}
+
+      == Configuration groups ==
+
+      Compose your configuration from those groups (group=option)
+
+
+      $APP_CONFIG_GROUPS
+
+
+      == Config ==
+
+      Override anything in the config (foo.bar=value)
+
+
+      $CONFIG
+
+
+      ${hydra.help.footer}
+
+      '
+  hydra_help:
+    template: 'Hydra (${hydra.runtime.version})
+
+      See https://hydra.cc for more info.
+
+
+      == Flags ==
+
+      $FLAGS_HELP
+
+
+      == Configuration groups ==
+
+      Compose your configuration from those groups (For example, append hydra/job_logging=disabled
+      to command line)
+
+
+      $HYDRA_CONFIG_GROUPS
+
+
+      Use ''--cfg hydra'' to Show the Hydra config.
+
+      '
+    hydra_help: ???
+  hydra_logging:
+    version: 1
+    formatters:
+      simple:
+        format: '[%(asctime)s][HYDRA] %(message)s'
+    handlers:
+      console:
+        class: logging.StreamHandler
+        formatter: simple
+        stream: ext://sys.stdout
+    root:
+      level: INFO
+      handlers:
+      - console
+    loggers:
+      logging_example:
+        level: DEBUG
+    disable_existing_loggers: false
+  job_logging:
+    version: 1
+    formatters:
+      simple:
+        format: '[%(asctime)s][%(name)s][%(levelname)s] - %(message)s'
+    handlers:
+      console:
+        class: logging.StreamHandler
+        formatter: simple
+        stream: ext://sys.stdout
+      file:
+        class: logging.FileHandler
+        formatter: simple
+        filename: ${hydra.runtime.output_dir}/${hydra.job.name}.log
+    root:
+      level: INFO
+      handlers:
+      - console
+      - file
+    disable_existing_loggers: false
+  env: {}
+  mode: RUN
+  searchpath: []
+  callbacks: {}
+  output_subdir: .hydra
+  overrides:
+    hydra:
+    - hydra.mode=RUN
+    task:
+    - save_path=./src/output/baseline
+    - Trainer.devices="1,2"
+    - module.batch_size=8
+    - module.save_path='/app/Final_MAR/src/output/baseline/lightning_logs/version_0/checkpoints/epoch=1-step=596.ckpt'
+    - module.criterion.device=cuda:1
+    - module.dataset.train.fold_path=/app/MAR/data/123_fold.json
+    - module.dataset.validation.fold_path=/app/MAR/data/123_fold.json
+    - module.dataset.test.fold_path=/app/MAR/data/123_fold.json
+    - module.test_save_path=./src/output/baseline
+  job:
+    name: main
+    chdir: null
+    override_dirname: Trainer.devices="1,2",module.batch_size=8,module.criterion.device=cuda:1,module.dataset.test.fold_path=/app/MAR/data/123_fold.json,module.dataset.train.fold_path=/app/MAR/data/123_fold.json,module.dataset.validation.fold_path=/app/MAR/data/123_fold.json,module.save_path='/app/Final_MAR/src/output/baseline/lightning_logs/version_0/checkpoints/epoch=1-step=596.ckpt',module.test_save_path=./src/output/baseline,save_path=./src/output/baseline
+    id: ???
+    num: ???
+    config_name: config
+    env_set: {}
+    env_copy: []
+    config:
+      override_dirname:
+        kv_sep: '='
+        item_sep: ','
+        exclude_keys: []
+  runtime:
+    version: 1.3.2
+    version_base: '1.3'
+    cwd: /app/Final_MAR
+    config_sources:
+    - path: hydra.conf
+      schema: pkg
+      provider: hydra
+    - path: /app/Final_MAR/src/config
+      schema: file
+      provider: main
+    - path: ''
+      schema: structured
+      provider: schema
+    output_dir: /app/Final_MAR/src/output/baseline/hydra_outputs/2023-08-26/23-30-45
+    choices:
+      module: baseline
+      module/dataset: baseline
+      module/dataset/test: dataset_baseline
+      module/dataset/validation: dataset_baseline
+      module/dataset/train: dataset_baseline
+      module/model: unet
+      hydra/env: default
+      hydra/callbacks: null
+      hydra/job_logging: default
+      hydra/hydra_logging: default
+      hydra/hydra_help: default
+      hydra/help: default
+      hydra/sweeper: basic
+      hydra/launcher: basic
+      hydra/output: default
+  verbose: false

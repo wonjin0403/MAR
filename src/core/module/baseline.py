@@ -19,9 +19,11 @@ class MAR(pl.LightningModule):
                  save_output_only: bool, 
                  test_save_path: str,
                  dataset: dict,
-                 batch_size: int, num_worker: int):
+                 batch_size: int, num_worker: int, save_path: str=None):
         super().__init__()
         self.model = model
+        if save_path is not None:
+            self.load_from_checkpoint(save_path)
         self.criterion = criterion
         self.optimizer = optimizer
         self.save_output_only = save_output_only
@@ -39,6 +41,14 @@ class MAR(pl.LightningModule):
     def test_dataloader(self):
         return self.dataloader["test"]
     
+    def load_from_checkpoint(self, path: str) ->None:
+        checkpoint = torch.load(path)
+        new_dict = {}
+        for key, v in checkpoint["state_dict"].items():
+            new_dict[key.replace("model.", "")] = v
+        print(self.model.load_state_dict(new_dict))
+        print(f"load checkpoint from {path}")
+
     def configure_optimizers(self):
         return self.optimizer
     
@@ -75,7 +85,6 @@ class MAR(pl.LightningModule):
             psnr_list.append(_psnr)
             mse_list.append(_mse)
         results = {"val_loss": loss, "pcc": pcc_list, "ssim": ssim_list, "psnr": psnr_list, "mse": mse_list}
-        print("Val_results:", results)
         self.validation_step_outputs.append(results)
         return results
     
