@@ -37,9 +37,11 @@ class Masked_MSE_SSIM_Loss(torch.nn.Module):
 
     def forward(self, output: torch.Tensor, target: torch.Tensor, tissue_mask: torch.Tensor) ->torch.Tensor:
         loss1_bone1 = self.recon_loss(output, target)
-        loss1_bone2 = self.recon_loss(output* tissue_mask, target* tissue_mask)
+        loss1_bone2 = self.recon_loss(output * tissue_mask, target * tissue_mask)
 
         loss1 = loss1_bone1 + self.tissue_rate * loss1_bone2    
         loss2 = self.ssim_loss(output, target) #* self.ssim_rate     # MSE + ssim loss
         loss = loss1 + self.ssim_rate * loss2
         return loss
+    
+    

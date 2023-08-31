@@ -3,3 +3,4 @@ defaults:
   - train: dataset_baseline
   - validation: dataset_baseline
   - test: dataset_baseline
+  - infer: infer

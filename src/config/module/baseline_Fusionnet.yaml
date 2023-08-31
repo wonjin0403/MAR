@@ -1,11 +1,11 @@
-_target_: core.module.masked_mse.MAR
+_target_: core.module.baseline.MAR
 
 defaults:
   - model: fusionnet
-  - dataset: masked_mse
+  - dataset: baseline
 
 criterion:
-  _target_: common.loss.Masked_MSE_SSIM_Loss
+  _target_: common.loss.MSE_SSIM_Loss
   ssim_rate: 0.1
   device: "cuda:3"
 

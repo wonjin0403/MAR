@@ -2,3 +2,4 @@ defaults:
   - train: MaskedMSE
   - validation: MaskedMSE
   - test: MaskedMSE
+  - infer: infer

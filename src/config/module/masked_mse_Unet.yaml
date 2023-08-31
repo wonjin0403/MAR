@@ -1,7 +1,8 @@
 _target_: core.module.masked_mse.MAR
 
 defaults:
-  - model: fusionnet
+  - _self_
+  - model: unet
   - dataset: masked_mse
 
 criterion:

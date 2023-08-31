@@ -1,0 +1,4 @@
+script/train/src/
+src/output/
+*.log
+*.ckpt

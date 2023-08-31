@@ -1,0 +1,6 @@
+_target_: common.dataset.Infer_CT_Dataset
+fold_path: "/app/home/jhk22/MAR/HN-CT-MAR/codes/final_infer_list_1_SNUH.json"
+dataset_type: "Infer"
+# torch_type: float
+data_type: dicom
+infer: True

@@ -11,9 +11,10 @@ criterion:
 
 optimizer:
   _target_: torch.optim.Adam
-  lr: 0.001
+  lr: 0.0001
 
 save_output_only: False
 test_save_path: "./output"
 batch_size: 16
 num_worker: 8
+save_path: ??

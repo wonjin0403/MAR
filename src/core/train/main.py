@@ -5,7 +5,7 @@ import sys
 import random
 import numpy as np
 import os
-sys.path.append(os.path.realpath("../../src/"))
+sys.path.append(os.path.realpath("./src"))
 import torch
 
 def seed_everything(seed: int = 42):
@@ -31,7 +31,10 @@ def main(cfg: DictConfig) -> None:
     cfg["module"]["optimizer"] = instantiate(cfg["module"]["optimizer"])
 
     cfg["module"] = instantiate(cfg["module"])
+    # train
     cfg["Trainer"].fit(cfg["module"])
+    # test
+    cfg["Trainer"].test(cfg["module"])
     
 if __name__ == "__main__":
     main()

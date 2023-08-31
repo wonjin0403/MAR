@@ -1,8 +1,0 @@
-- save_path=./src/output/baseline
-- Trainer.devices="2,3"
-- module.batch_size=8
-- module.criterion.device=cuda:2
-- module.dataset.train.fold_path=/app/home/jhk22/MAR/HN-CT-MAR/codes/final_all_data_1_fold.json
-- module.dataset.validation.fold_path=/app/home/jhk22/MAR/HN-CT-MAR/codes/final_all_data_1_fold.json
-- module.dataset.test.fold_path=/app/home/jhk22/MAR/HN-CT-MAR/codes/final_all_data_1_fold.json
-- module.test_save_path=./src/output/baseline
