@@ -19,8 +19,7 @@ class MAR(pl.LightningModule):
                  save_output_only: bool, 
                  test_save_path: str,
                  dataset: dict,
-                 batch_size: int, num_worker: int, save_path: str=None):
-        
+                 batch_size: int, num_worker: int, save_path: str=None, shuffle: bool=False):
         super().__init__()
         self.model = model
         if save_path is not None:

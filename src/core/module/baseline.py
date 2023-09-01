@@ -19,7 +19,7 @@ class MAR(pl.LightningModule):
                  save_output_only: bool, 
                  test_save_path: str,
                  dataset: dict,
-                 batch_size: int, num_worker: int, save_path: str=None):
+                 batch_size: int, num_worker: int, save_path: str=None, shuffle: bool=False):
         super().__init__()
         self.model = model
         if save_path is not None:
@@ -28,7 +28,7 @@ class MAR(pl.LightningModule):
         self.optimizer = optimizer
         self.save_output_only = save_output_only
         self.test_save_path = test_save_path
-        self.dataloader = set_dataloader(dataset, batch_size, num_worker)
+        self.dataloader = set_dataloader(dataset, batch_size, num_worker, shuffle)
         self.validation_step_outputs = []
         self.testing_step_outputs = []
 
