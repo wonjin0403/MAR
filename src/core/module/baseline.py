@@ -110,7 +110,7 @@ class MAR(pl.LightningModule):
         self.log("valid/mse", np.mean(mse_list), on_epoch=True, sync_dist=True)
         self.log("valid/metrics", np.mean(metrics_list), on_epoch=True, sync_dist=True)
 
-    def testing_step(self, batch, batch_idx: int) -> dict:
+    def test_step(self, batch, batch_idx: int) -> dict:
         input_, target_, mask_, imgName = batch
         output_ = self.step(input_)
         loss = self.criterion(output_, target_)
@@ -134,7 +134,7 @@ class MAR(pl.LightningModule):
         return results
     
 
-    def on_testing_step_end(self) -> None:
+    def on_test_epoch_end(self) -> None:
         loss_list, pcc_list, ssim_list, psnr_list, mse_list = [], [], [], [], []
         for output in self.testing_step_outputs:
             loss_list.append(output["loss"].item())
@@ -149,9 +149,9 @@ class MAR(pl.LightningModule):
         print(f"psnr: {np.mean(psnr_list)}")
         print(f"psnr: {np.mean(mse_list)}")
         
-    def predict_step(self, batch, batch_idx):
+    def predict_step(self, batch, batch_idx) -> None:
         input_, imgName = batch
         output_ = self.step(input_)
         for idx in range(input_.shape[0]):
             save_as_dicom(output=output_[idx], test_save_path=self.test_save_path, imgName=imgName[idx])
-        return results
+        

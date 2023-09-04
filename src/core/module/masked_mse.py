@@ -28,7 +28,7 @@ class MAR(pl.LightningModule):
         self.optimizer = optimizer
         self.save_output_only = save_output_only
         self.test_save_path = test_save_path
-        self.dataloader = set_dataloader(dataset, batch_size, num_worker)
+        self.dataloader = set_dataloader(dataset, batch_size, num_worker, shuffle)
         self.validation_step_outputs = []
         self.testing_step_outputs = []
 
@@ -111,32 +111,32 @@ class MAR(pl.LightningModule):
         self.log("valid/metrics", np.mean(metrics_list), on_epoch=True, sync_dist=True)
 
 
-    def testing_step(self, batch, batch_idx: int) -> dict:
+    def test_step(self, batch, batch_idx: int) -> dict:
         input_, target_, bone_mask_, tissue_mask_, imgName = batch
         output_ = self.step(input_)
         loss = self.criterion(output_, target_, tissue_mask_)
         pcc_list, ssim_list, psnr_list, mse_list = [], [], [], []
         for idx in range(input_.shape[0]):
-            _pcc, _ssim, _psnr, _mse = self._metric(target_[idx].cpu().numpy(), output_[idx].cpu().numpy())
+            _pcc, _ssim, _psnr, _mse, _ = self._metric(target_[idx].cpu().numpy(), output_[idx].cpu().numpy())
             pcc_list.append(_pcc)
             ssim_list.append(_ssim)
             psnr_list.append(_psnr)
             mse_list.append(_mse)
             if self.save_output_only:
-                save_as_dicom(output=output_[idx].cpu().numpy(),
+                save_as_dicom(output_=output_[idx].cpu().numpy(),
                               test_save_path=self.test_save_path,
                               imgName=imgName[idx])
             else:
-                save_as_dicom(input=input_[idx].cpu().numpy(), 
+                save_as_dicom(input_=input_[idx].cpu().numpy(), 
                               target_=target_[idx].cpu().numpy(), 
-                              output=output_[idx].cpu().numpy(), 
+                              output_=output_[idx].cpu().numpy(), 
                               test_save_path=self.test_save_path, 
                               imgName=imgName[idx])
         results = {"loss":loss, "pcc": pcc_list, "ssim": ssim_list, "psnr": psnr_list, "mse": mse_list, "imgName": imgName}
         self.testing_step_outputs.append(results)
         return results
     
-    def on_testing_step_end(self) -> None:
+    def on_test_epoch_end(self) -> None:
         loss_list, pcc_list, ssim_list, psnr_list, mse_list = [], [], [], [], []
         for output in self.testing_step_outputs:
             loss_list.append(output["loss"].item())
@@ -151,9 +151,9 @@ class MAR(pl.LightningModule):
         print(f"psnr: {np.mean(psnr_list)}")
         print(f"mse: {np.mean(mse_list)}")
         
-    def predict_step(self, batch, batch_idx):
+    def predict_step(self, batch, batch_idx) -> None:
         input_, imgName = batch
         output_ = self.step(input_)
         for idx in range(input_.shape[0]):
             save_as_dicom(output=output_[idx], test_save_path=self.test_save_path, imgName=imgName[idx])
-        return results
+        
