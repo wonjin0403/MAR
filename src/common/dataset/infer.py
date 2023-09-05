@@ -88,7 +88,7 @@ class Infer_CT_Dataset(Dataset):
 
         #infer 데이터는 dicom으로 metal이 있는 경우만 존재
         if self.infer:
-            return self._np2tensor(min_max_normalization(img, min_new=-1.0, max_new=1.0)), None, os.path.basename(img_path)
+            return self._np2tensor(min_max_normalization(img, min_new=-1.0, max_new=1.0)), os.path.basename(img_path)
         
         ## 요기에 augmentation code 추가하자.
         # a1 = img[:, 512*0: 512*1] #input-white
@@ -112,40 +112,6 @@ class Infer_CT_Dataset(Dataset):
         # target_np = min_max_normalization(inserted_img, min_new=-1.0, max_new=1.0)#img[:, 512*4: 512*5])
 
         input_ = self._np2tensor(input_np)
-        # input_black = self._np2tensor(input_np_black)
-        # target_ = self._np2tensor(target_np)
-        # bone1 = self._np2tensor(bone1)
-        # bone2 = self._np2tensor(bone2)
-        # mask_ = self._np2tensor(mask)
         
-        # if random.choice([True, False]):
-        #     input_ = torch.cat([input_,input_black], dim=0)
-        #     target_ = torch.cat([target_,target_], dim=0)
-        # else:
-        #     input_ = torch.cat([input_black, input_], dim=0)
-        #     target_ = torch.cat([target_,target_], dim=0)
-        
-
-        # a = np.random.randint(3000, size=1)
-        
-        # seed_list = []
-        # if self.transform:
-        #     seed_list.append(a[0])
-        #     self.transform.set_random_state(seed=a[0])
-        #     input_ = self.transform(input_)
-        #     self.transform.set_random_state(seed=a[0])
-        #     target_ = self.transform(target_)
-        #     self.transform.set_random_state(seed=a[0])
-        #     bone1 = self.transform(bone1)
-        #     self.transform.set_random_state(seed=a[0])
-        #     bone2 = self.transform(bone2)
-
-
-
-            # concat_img = np.concatenate((input_.reshape(512,512), target_.reshape(512,512), bone1.reshape(512,512), bone2.reshape(512,512)), axis=1)
-            # plt.imsave('/app/MAR/img_save_path/fusion_mask_sample_230807/input'+'_'+str(a[0])+'.png', concat_img)
-
-        
-        # return input_, target_, os.path.basename(img_path)
-        # return input_, target_, bone1, bone2, os.path.basename(img_path)
         return input_, os.path.basename(img_path)
+        # return input_

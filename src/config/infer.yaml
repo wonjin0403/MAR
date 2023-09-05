@@ -1,9 +1,0 @@
-save_path: ??
-hydra:
-  run:
-    dir: ${save_path}/hydra_outputs/${now:%Y-%m-%d}/${now:%H-%M-%S}
-defaults:
-  - _self_
-  - module: predict
-batch_size: 1
-num_workers: 1

@@ -14,10 +14,10 @@ optimizer:
   lr: 0.0001
 
 shuffle:
-  train: bool = True
-  validation: bool = False
-  test: bool = False
-  predict: bool = False
+  train: True
+  validation: False
+  test: False
+  predict: False
 
 save_output_only: False
 test_save_path: "./output"

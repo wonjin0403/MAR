@@ -9,7 +9,7 @@ import os
 import sys
 sys.path.append(os.path.realpath("../../src/"))
 from common.utils.set_dataloader import set_dataloader
-from common.utils.utils import pearson_correlation_coeff, save_as_dicom
+from common.utils.utils import pearson_correlation_coeff, save_as_dicom_test, save_as_dicom_infer
 
 class MAR(pl.LightningModule):
     def __init__(self,
@@ -42,7 +42,7 @@ class MAR(pl.LightningModule):
         return self.dataloader["test"]
     
     def predict_dataloader(self):
-        return self.dataloader["infer"]
+        return self.dataloader["predict"]
     
     def load_from_checkpoint(self, path: str) ->None:
         checkpoint = torch.load(path)
@@ -123,11 +123,11 @@ class MAR(pl.LightningModule):
             psnr_list.append(_psnr)
             mse_list.append(_mse)
             if self.save_output_only:
-                save_as_dicom(output_=output_[idx].cpu().numpy(),
+                save_as_dicom_test(output_=output_[idx].cpu().numpy(),
                               test_save_path=self.test_save_path,
                               imgName=imgName[idx])
             else:
-                save_as_dicom(input_=input_[idx].cpu().numpy(), 
+                save_as_dicom_test(input_=input_[idx].cpu().numpy(), 
                               target_=target_[idx].cpu().numpy(), 
                               output_=output_[idx].cpu().numpy(), 
                               test_save_path=self.test_save_path, 
@@ -155,5 +155,5 @@ class MAR(pl.LightningModule):
         input_, imgName = batch
         output_ = self.step(input_)
         for idx in range(input_.shape[0]):
-            save_as_dicom(output=output_[idx], test_save_path=self.test_save_path, imgName=imgName[idx])
+            save_as_dicom_infer(output_=output_[idx], test_save_path=self.test_save_path, imgName=imgName[idx])
         

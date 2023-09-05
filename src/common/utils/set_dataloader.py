@@ -5,5 +5,5 @@ def set_dataloader(datasets: dict, batch_size: int, num_workers: int, shuffle: b
     data_loader = {}
     for k, v in datasets.items():
         data_loader[k] = DataLoader(v, batch_size, shuffle=shuffle[k], num_workers=num_workers,
-                                        drop_last=False, pin_memory=True)
+                                        drop_last=False, pin_memory=True) 
     return data_loader
