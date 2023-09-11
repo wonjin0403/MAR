@@ -42,7 +42,7 @@ class MAR(pl.LightningModule):
         return self.dataloader["test"]
     
     def predict_dataloader(self):
-        return self.dataloader["infer"]
+        return self.dataloader["predict"]
     
     def load_from_checkpoint(self, path: str) ->None:
         checkpoint = torch.load(path)
@@ -116,17 +116,19 @@ class MAR(pl.LightningModule):
         loss = self.criterion(output_, target_)
         pcc_list, ssim_list, psnr_list, mse_list = [], [], [], []
         for idx in range(input_.shape[0]):
-            _pcc, _ssim, _psnr, _mse = self._metric(target_[idx].cpu().numpy(), output_[idx].cpu().numpy())
+            _pcc, _ssim, _psnr, _mse, _ = self._metric(target_[idx].cpu().numpy(), output_[idx].cpu().numpy())
             pcc_list.append(_pcc)
             ssim_list.append(_ssim)
             psnr_list.append(_psnr)
             mse_list.append(_mse)
             if self.save_output_only:
-                save_as_dicom_test(output_=output_[idx], test_save_path=self.test_save_path, imgName=imgName[idx])
+                save_as_dicom_test(output_=output_[idx].cpu().numpy(), 
+                                   test_save_path=self.test_save_path, 
+                                   imgName=imgName[idx])
             else:
-                save_as_dicom_test(input_=input_[idx], 
-                              target_=target_[idx], 
-                              output_=output_[idx], 
+                save_as_dicom_test(input_=input_[idx].cpu().numpy(), 
+                              target_=target_[idx].cpu().numpy(), 
+                              output_=output_[idx].cpu().numpy(), 
                               test_save_path=self.test_save_path, 
                               imgName=imgName[idx])
         results = {"loss":loss, "pcc": pcc_list, "ssim": ssim_list, "psnr": psnr_list, "mse": mse_list, "imgName": imgName}
@@ -147,7 +149,7 @@ class MAR(pl.LightningModule):
         print(f"pcc: {np.mean(pcc_list)}")
         print(f"ssim: {np.mean(ssim_list)}")
         print(f"psnr: {np.mean(psnr_list)}")
-        print(f"psnr: {np.mean(mse_list)}")
+        print(f"mse: {np.mean(mse_list)}")
         
     def predict_step(self, batch, batch_idx) -> None:
         input_, imgName = batch

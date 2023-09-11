@@ -19,11 +19,12 @@ class MAR(pl.LightningModule):
                  save_output_only: bool, 
                  test_save_path: str,
                  dataset: dict,
-                 batch_size: int, num_worker: int, save_path: str=None, shuffle: bool=False):
+                 batch_size: int, num_worker: int, save_path: str, shuffle: bool=False):
         super().__init__()
         self.model = model
         if save_path is not None:
             self.load_from_checkpoint(save_path)
+        self.save_path = save_path
         self.criterion = criterion
         self.optimizer = optimizer
         self.save_output_only = save_output_only
@@ -125,13 +126,16 @@ class MAR(pl.LightningModule):
             if self.save_output_only:
                 save_as_dicom_test(output_=output_[idx].cpu().numpy(),
                               test_save_path=self.test_save_path,
-                              imgName=imgName[idx])
+                              imgName=imgName[idx],
+                              save_path=self.save_path
+                              )
             else:
                 save_as_dicom_test(input_=input_[idx].cpu().numpy(), 
                               target_=target_[idx].cpu().numpy(), 
                               output_=output_[idx].cpu().numpy(), 
                               test_save_path=self.test_save_path, 
-                              imgName=imgName[idx])
+                              imgName=imgName[idx],
+                              save_path=self.save_path)
         results = {"loss":loss, "pcc": pcc_list, "ssim": ssim_list, "psnr": psnr_list, "mse": mse_list, "imgName": imgName}
         self.testing_step_outputs.append(results)
         return results
@@ -155,5 +159,9 @@ class MAR(pl.LightningModule):
         input_, imgName = batch
         output_ = self.step(input_)
         for idx in range(input_.shape[0]):
-            save_as_dicom_infer(output_=output_[idx], test_save_path=self.test_save_path, imgName=imgName[idx])
+            save_as_dicom_infer(output_=output_[idx], 
+                                test_save_path=self.test_save_path, 
+                                imgName=imgName[idx],
+                                save_path=self.save_path
+                                )
         

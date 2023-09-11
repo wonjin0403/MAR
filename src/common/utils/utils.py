@@ -14,11 +14,11 @@ def pearson_correlation_coeff(x: np.array, y: np.array)-> float:
 
     return np.mean(vx * vy)
 
-def save_as_dicom_test(output_, test_save_path:str, imgName:str, input_= None, target_= None) -> None:
-    if not os.path.exists("%s/test_dcm" % (test_save_path)):
-        os.makedirs("%s/test_dcm" % (test_save_path))
-        print("%s/test_dcm" % (test_save_path))
-    save_path_dicom = "%s/test_dcm/%s" % (test_save_path, imgName[:-4])
+def save_as_dicom_test(output_, test_save_path:str, imgName:str, save_path: str, input_= None, target_= None) -> None:
+    if not os.path.exists("%s/test_dcm/%s" % (test_save_path, save_path.split('/')[-3])):
+        os.makedirs("%s/test_dcm/%s" % (test_save_path, save_path.split('/')[-3]))
+        print("%s/test_dcm/%s" % (test_save_path, save_path.split('/')[-3]))
+    save_path_dicom = "%s/test_dcm/%s/%s" % (test_save_path,save_path.split('/')[-3], imgName[:-4])
     input_ = ((input_ + 1) / 2 * 4095) if input_ is not None else None
     target_ = ((target_ + 1) / 2 * 4095) if target_ is not None else None
     output_ = ((output_ + 1) / 2 * 4095)
@@ -38,11 +38,11 @@ def save_as_dicom_test(output_, test_save_path:str, imgName:str, input_= None, t
     #     print("check data_path", "/app/home/jhk22/MAR/data/raw_data/new_data_220109/SNUH_RO_HN_Metal/Non-OMAR(Anony)/%s/%s.dcm" % (imgName[:5], imgName[:-4]))
 
     
-def save_as_dicom_infer(output_, test_save_path:str, imgName:str, input_= None, target_= None) -> None:
-    if not os.path.exists("%s/infer_dcm" % (test_save_path)):
-        os.makedirs("%s/infer_dcm" % (test_save_path))
-        print("%s/infer_dcm" % (test_save_path))
-    save_path_dicom = "%s/infer_dcm/%s" % (test_save_path, imgName[:-4])
+def save_as_dicom_infer(output_, test_save_path:str, imgName:str, save_path: str, input_= None, target_= None) -> None:
+    if not os.path.exists("%s/infer_dcm/%s" % (test_save_path, save_path.split('/')[-3])):
+        os.makedirs("%s/infer_dcm/%s" % (test_save_path, save_path.split('/')[-3]))
+        print("%s/infer_dcm/%s" % (test_save_path, save_path.split('/')[-3]))
+    save_path_dicom = "%s/infer_dcm/%s/%s" % (test_save_path, save_path.split('/')[-3], imgName[:-4])
     input_ = ((input_ + 1) / 2 * 4095) if input_ is not None else None
     target_ = ((target_ + 1) / 2 * 4095) if target_ is not None else None
     output_ = ((output_ + 1) / 2 * 4095)
