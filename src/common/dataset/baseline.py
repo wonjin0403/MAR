@@ -1,8 +1,10 @@
 import os
 import json
 import torch
+import cv2
 import pydicom as dcm
 import numpy as np
+import matplotlib.pyplot as plt
 from torch.utils.data import Dataset
 from monai.transforms import (
     Compose,
@@ -15,6 +17,7 @@ from monai.transforms import (
     RandZoom,
     RandFlip
 )
+from PIL import Image
 import sys
 sys.path.append("../../")
 from common.utils.normalization import min_max_normalization
@@ -48,6 +51,7 @@ class CT_Dataset(Dataset):
                     )
             ]) 
         self.torch_type = torch.float32# if torch_type == float else torch.half # float32 or float16
+        self.face_mask = "/app/home/jhk22/MAR/data/only_mask_230128"
         self.data_type = data_type
         self.infer = infer
         
@@ -57,6 +61,14 @@ class CT_Dataset(Dataset):
     def __len__(self):
         return len(self.img_paths)
 
+    def read_face_mask(self, face_mask_path, img):
+        face_mask = Image.open(face_mask_path)
+        face_mask = np.array(face_mask)
+        face_mask = cv2.cvtColor(face_mask, cv2.COLOR_BGR2GRAY).astype(float)
+        face_mask = np.where(face_mask<175, 0, face_mask)
+        face_mask = np.where(face_mask>0, 1, face_mask)
+        return face_mask
+    
     def _np2tensor(self, np):
         # (x,x) 이미지 -> (1,x,x) 텐서
         tmp = torch.from_numpy(np).view(1, *np.shape)
@@ -77,20 +89,28 @@ class CT_Dataset(Dataset):
         a1 = img[:, 512*2: 512*3] #input-white
         # a3 = img[:, 512*4: 512*5] #input-black
         a2 = img[:, 512*3: 512*4] #target
-        mask = img[:, 512*4:] #mask
+        # mask = img[:, 512*4:] #mask
+        
+        ################################얼굴 마스크
+        face_path = os.path.join(self.face_mask, os.path.basename(img_path)[-17:-4])
+        face = self.read_face_mask(face_path.rsplit(".", 1)[0]+".png", a2)
+        face_m = np.where(face > 0, 1, np.zeros(face.shape))
+        ###########################################################
+        
         
         a1 = np.where(a1<4095, 0 , a1) # metal input threshold 4095
         inserted = a1 + a2 # threshold metal + full_image
         inserted_img = np.where(inserted > 4095, 4095, inserted) 
-
-        input_np = min_max_normalization(img[:, 512*2: 512*3], min_new=-1.0, max_new=1.0)
+        inserted_img = inserted_img * face_m
+        
+        input_np = min_max_normalization(img[:, 512*2: 512*3]*face_m, min_new=-1.0, max_new=1.0)
         # input_np_black = min_max_normalization(img[:, 512*4:512*5], min_new=-1.0, max_new=1.0)
         target_np = min_max_normalization(inserted_img, min_new=-1.0, max_new=1.0)#img[:, 512*4: 512*5])
 
         input_ = self._np2tensor(input_np)
         # input_black = self._np2tensor(input_np_black)
         target_ = self._np2tensor(target_np)
-        mask_ = self._np2tensor(mask)
+        mask_ = self._np2tensor(face_m)
 
         a = np.random.randint(3000, size=1)
         
@@ -101,4 +121,7 @@ class CT_Dataset(Dataset):
             input_ = self.transform(input_)
             self.transform.set_random_state(seed=a[0])
             target_ = self.transform(target_)
+            self.transform.set_random_state(seed=a[0])
+            mask_ = self.transform(mask_)
         return input_, target_, mask_, os.path.basename(img_path)
+        # return input_, target_, os.path.basename(img_path)

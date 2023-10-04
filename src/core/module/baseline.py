@@ -7,6 +7,7 @@ from skimage.metrics import peak_signal_noise_ratio as compare_psnr
 import lightning as pl
 import os
 import sys
+import json
 sys.path.append(os.path.realpath("../../src/"))
 from common.utils.set_dataloader import set_dataloader
 from common.utils.utils import pearson_correlation_coeff, save_as_dicom_test, save_as_dicom_infer
@@ -138,21 +139,28 @@ class MAR(pl.LightningModule):
         self.testing_step_outputs.append(results)
         return results
     
-
     def on_test_epoch_end(self) -> None:
-        loss_list, pcc_list, ssim_list, psnr_list, mse_list = [], [], [], [], []
+        loss_list, pcc_list, ssim_list, psnr_list, mse_list, name_list = [], [], [], [], [], []
+        scores_json={}
         for output in self.testing_step_outputs:
             loss_list.append(output["loss"].item())
             pcc_list.extend(output["pcc"])
             ssim_list.extend(output["ssim"])
             psnr_list.extend(output["psnr"])
             mse_list.extend(output["mse"])
+            name_list.extend(output["imgName"])
+        for i in range(len(name_list)):    
+            scores_json[name_list[i]] = {"pcc": pcc_list[i], "ssim": ssim_list[i], "psnr": psnr_list[i], "mse": mse_list[i]}
         print("------------------")
         print("Evaluation Result")
         print(f"pcc: {np.mean(pcc_list)}")
         print(f"ssim: {np.mean(ssim_list)}")
         print(f"psnr: {np.mean(psnr_list)}")
         print(f"mse: {np.mean(mse_list)}")
+        
+        # file_path = os.path.join("%s/test_dcm/%s" % (self.test_save_path, self.save_path.split('/')[-3]), f"0_test_score.json")
+        # with open(file_path, 'w') as outfile:
+        #     json.dump(scores_json, outfile, indent=4)
         
     def predict_step(self, batch, batch_idx) -> None:
         input_, imgName = batch

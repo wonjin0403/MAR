@@ -4,6 +4,7 @@ import torch
 import cv2
 import pydicom as dcm
 import numpy as np
+import matplotlib.pyplot as plt
 from torch.utils.data import Dataset
 from monai.transforms import (
     Compose,
@@ -50,6 +51,8 @@ class Masked_CT_Dataset(Dataset):
                     )
             ])
         self.bone_mask = "/app/home/jhk22/MAR/data/mask_all_data"
+        self.bone_mask_new = "/app/home/jhk22/MAR/data/mask_all_data_230913"
+        self.face_mask = "/app/home/jhk22/MAR/data/only_mask_230128"
         self.torch_type = torch.float32 # if torch_type == float else torch.half # float32 or float16
         self.data_type = data_type
         self.infer = infer
@@ -76,6 +79,13 @@ class Masked_CT_Dataset(Dataset):
         metal_mask = np.where(img>=4095, 1, np.zeros(img.shape))
         return bone_mask+metal_mask
     
+    def read_face_mask(self, face_mask_path, img):
+        face_mask = Image.open(face_mask_path)
+        face_mask = np.array(face_mask)
+        face_mask = cv2.cvtColor(face_mask, cv2.COLOR_BGR2GRAY).astype(float)
+        face_mask = np.where(face_mask<175, 0, face_mask)
+        face_mask = np.where(face_mask>0, 1, face_mask)
+        return face_mask
     
     # _loader 수정함_dataset새로 생성했기때문_reconcat한 dataset을 사용할 경우 이전 _loader를 사용해야함
     def _loader(self, idx):
@@ -95,18 +105,30 @@ class Masked_CT_Dataset(Dataset):
         a2 = img[:, 512*3: 512*4] #target
         # mask = img[:, 512*4:] #mask
         
-        ################################
+        ################################기존 코드
         bone_path = os.path.join(self.bone_mask, os.path.basename(img_path))
         bone = self.read_bone_mask(bone_path.rsplit(".", 1)[0]+".png", a2)
         bone1 = np.where(bone > 0, 1, np.zeros(bone.shape))
         bone2 = np.where(bone==0, 1, np.zeros(bone.shape))
-        ################################
+        ###########################################################
+        # ##################################변경 코드
+        # bone_path = os.path.join(self.bone_mask_new, os.path.basename(img_path)[-17:-4])
+        # bone = self.read_bone_mask(bone_path.rsplit(".", 1)[0]+".png", a2)
+        # bone1 = np.where(bone > 0, 1, np.zeros(bone.shape))
+        # bone2 = np.where(bone==0, 1, np.zeros(bone.shape))
+        # ################################
+        ################################얼굴 마스크
+        face_path = os.path.join(self.face_mask, os.path.basename(img_path)[-17:-4])
+        face = self.read_face_mask(face_path.rsplit(".", 1)[0]+".png", a2)
+        face_m = np.where(face > 0, 1, np.zeros(face.shape))
+        ###########################################################
         
         a1 = np.where(a1<4095, 0 , a1) # metal input threshold 4095
         inserted = a1 + a2 # threshold metal + full_image
-        inserted_img = np.where(inserted > 4095, 4095, inserted) 
+        inserted_img = np.where(inserted > 4095, 4095, inserted)
+        inserted_img = inserted_img * face_m
 
-        input_np = min_max_normalization(img[:, 512*2: 512*3], min_new=-1.0, max_new=1.0)
+        input_np = min_max_normalization((img[:, 512*2: 512*3])*face_m, min_new=-1.0, max_new=1.0)
         # input_np_black = min_max_normalization(img[:, 512*4:512*5], min_new=-1.0, max_new=1.0)
         target_np = min_max_normalization(inserted_img, min_new=-1.0, max_new=1.0)#img[:, 512*4: 512*5])
 
@@ -115,7 +137,7 @@ class Masked_CT_Dataset(Dataset):
         target_ = self._np2tensor(target_np)
         bone1 = self._np2tensor(bone1)
         bone2 = self._np2tensor(bone2)
-        # mask_ = self._np2tensor(mask)
+        mask_ = self._np2tensor(face_m)
         
         # if random.choice([True, False]):
         #     input_ = torch.cat([input_,input_black], dim=0)
@@ -138,11 +160,13 @@ class Masked_CT_Dataset(Dataset):
             bone1 = self.transform(bone1)
             self.transform.set_random_state(seed=a[0])
             bone2 = self.transform(bone2)
+            self.transform.set_random_state(seed=a[0])
+            mask_ = self.transform(mask_)
 
 
 
-            # concat_img = np.concatenate((input_.reshape(512,512), target_.reshape(512,512), bone1.reshape(512,512), bone2.reshape(512,512)), axis=1)
-            # plt.imsave('/app/MAR/img_save_path/fusion_mask_sample_230807/input'+'_'+str(a[0])+'.png', concat_img)
+        # concat_img = np.concatenate((input_.reshape(512,512), target_.reshape(512,512), bone1.reshape(512,512), bone2.reshape(512,512), mask_.reshape(512,512)), axis=1)
+        # plt.imsave('/app/home/jhk22/MAR/img_save_path/231003/input'+'_'+str(a[0])+'.png', concat_img)
 
         
         # return input_, target_, os.path.basename(img_path)
