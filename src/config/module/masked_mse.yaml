@@ -9,10 +9,19 @@ criterion:
   ssim_rate: 0.1
   device: "cuda:3"
 
+# optimizer:
+#   _target_: torch.optim.Adam
+#   lr: 0.0001
+
 optimizer:
   _target_: torch.optim.Adam
-  lr: 0.0001
+  lr: 0.001
 
+scheduler:
+  _target_: torch.optim.lr_scheduler.CosineAnnealingLR
+  T_max: 300
+  eta_min: 0.00001
+  
 shuffle:
   train: True
   validation: False
@@ -23,4 +32,4 @@ save_output_only: False
 test_save_path: "./output"
 batch_size: 16
 num_worker: 8
-save_path: ??
+save_path: Null

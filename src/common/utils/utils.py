@@ -47,9 +47,10 @@ def save_as_dicom_infer(output_, test_save_path:str, imgName:str, save_path: str
     target_ = ((target_ + 1) / 2 * 4095) if target_ is not None else None
     output_ = ((output_ + 1) / 2 * 4095)
     total = np.concatenate([input_, target_, output_], axis=2) if input_ is not None else output_
-    # try:    
-    dcm_info = dcm.dcmread("/app/home/jhk22/MAR/data/raw_data/new_data_220109/SNUH_RO_HN_Metal/Non-OMAR(Anony)/%s/%s.dcm" % (imgName[:5], imgName[:-4]), force=True)
-    # dcm_info = dcm.dcmread("/app/home/jhk22/MAR/data/raw_data/new_data_220109/SNUH_RO_HN_Metal/Non-OMAR(Anony)/ID001/ID001_NonOMAR_005.dcm", force=True)
+    if imgName[-4:]==".dcm":
+        dcm_info = dcm.dcmread("/app/home/jhk22/MAR/data/raw_data/new_data_220109/SNUH_RO_HN_Metal/Non-OMAR(Anony)/%s/%s.dcm" % (imgName[:5], imgName[:-4]), force=True)
+    else:
+        dcm_info = dcm.dcmread("/app/home/jhk22/MAR/data/raw_data/new_data_220109/SNUH_RO_HN_Metal/Non-OMAR(Anony)/ID001/ID001_NonOMAR_005.dcm", force=True)
     new_check = total.cpu().numpy().astype(np.uint16)
     new_check = new_check.reshape(total.shape[1], total.shape[2])
     dcm_info.Rows = new_check.shape[0]
@@ -58,6 +59,3 @@ def save_as_dicom_infer(output_, test_save_path:str, imgName:str, save_path: str
     ### output insertion to DCM pixel data
     dcm_info.PixelData = new_check.tobytes()
     dcm_info.save_as(save_path_dicom + '.dcm')
-    # except:
-    #     print("check data_path", "/app/home/jhk22/MAR/data/raw_data/new_data_220109/SNUH_RO_HN_Metal/Non-OMAR(Anony)/%s/%s.dcm" % (imgName[:5], imgName[:-4]))
-    

@@ -29,7 +29,9 @@ def main(cfg: DictConfig) -> None:
     cfg["module"]["criterion"] = instantiate(cfg["module"]["criterion"])
     cfg["module"]["optimizer"]["params"] = cfg["module"]["model"].parameters()
     cfg["module"]["optimizer"] = instantiate(cfg["module"]["optimizer"])
-
+    cfg["module"]["scheduler"]["optimizer"] = cfg["module"]["optimizer"]
+    cfg["module"]["scheduler"] = instantiate(cfg["module"]["scheduler"])
+    
     cfg["module"] = instantiate(cfg["module"])
     
     # test

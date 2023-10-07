@@ -1,4 +1,5 @@
 import torch
+import pandas as pd
 import numpy as np
 from torch.nn import Module
 from torch.utils.data import Dataset
@@ -17,17 +18,20 @@ class MAR(pl.LightningModule):
                  model: Module, 
                  criterion: Module, 
                  optimizer: Module,
+                 scheduler: Module,
                  save_output_only: bool, 
                  test_save_path: str,
                  dataset: dict,
                  batch_size: int, num_worker: int, save_path: str, shuffle: bool=False):
         super().__init__()
         self.model = model
-        # if save_path is not None:
-        #     self.load_from_checkpoint(save_path)
+        if save_path is not None:
+            self.load_from_checkpoint(save_path)
+        self.batch_size = batch_size
         self.save_path = save_path
         self.criterion = criterion
         self.optimizer = optimizer
+        self.scheduler = scheduler
         self.save_output_only = save_output_only
         self.test_save_path = test_save_path
         self.dataloader = set_dataloader(dataset, batch_size, num_worker, shuffle)
@@ -57,6 +61,9 @@ class MAR(pl.LightningModule):
     def configure_optimizers(self):
         return self.optimizer
     
+    def lr_scheduler_step(self, scheduler, metric):
+        self.scheduler.step(epoch=self.current_epoch) 
+    
     def step(self, input_ct):
         output = self.model(input_ct)
         return output
@@ -70,17 +77,19 @@ class MAR(pl.LightningModule):
         return _pcc, _ssim, _psnr, _mse, metrics
 
     def training_step(self, batch, batch_idx: int) -> dict:
-        input_, target_, _, _ = batch
+        input_, target_, _, _, _ = batch
         output_ = self.step(input_)
         loss = self.criterion(output_, target_)
+        self.log("train/loss", loss, on_epoch=True, sync_dist=True, batch_size=self.batch_size)
+        self.log('train/learning rate', self.scheduler.get_last_lr()[0], on_epoch=True, batch_size=self.batch_size)
         return {"loss":loss}
     
-    def on_training_epoch_end(self, outputs: list) -> None:
-        loss = [output["loss"] for output in outputs]
-        self.log("train/loss", np.mean(loss), on_epoch=True, sync_dist=True)
+    # def on_training_epoch_end(self, outputs: list) -> None:
+    #     loss = [output["loss"] for output in outputs]
+    #     self.log("train/loss", np.mean(loss), on_epoch=True, sync_dist=True)
 
     def validation_step(self, batch, batch_idx: int) -> dict:
-        input_, target_, _, _ = batch
+        input_, target_, _, _, _ = batch
         output_ = self.step(input_)
         loss = self.criterion(output_, target_)
         pcc_list, ssim_list, psnr_list, mse_list, metrics_list = [], [], [], [], []
@@ -113,16 +122,17 @@ class MAR(pl.LightningModule):
         self.log("valid/metrics", np.mean(metrics_list), on_epoch=True, sync_dist=True)
 
     def test_step(self, batch, batch_idx: int) -> dict:
-        input_, target_, mask_, imgName = batch
+        input_, target_, mask_, metal_size_, imgName = batch
         output_ = self.step(input_)
         loss = self.criterion(output_, target_)
-        pcc_list, ssim_list, psnr_list, mse_list = [], [], [], []
+        pcc_list, ssim_list, psnr_list, mse_list, metal_list = [], [], [], [], []
         for idx in range(input_.shape[0]):
             _pcc, _ssim, _psnr, _mse, _ = self._metric(target_[idx].cpu().numpy(), output_[idx].cpu().numpy())
             pcc_list.append(_pcc)
             ssim_list.append(_ssim)
             psnr_list.append(_psnr)
             mse_list.append(_mse)
+            metal_list.append(metal_size_[idx].cpu().numpy())
             if self.save_output_only:
                 save_as_dicom_test(output_=output_[idx].cpu().numpy(), 
                                    test_save_path=self.test_save_path, 
@@ -135,32 +145,28 @@ class MAR(pl.LightningModule):
                               test_save_path=self.test_save_path, 
                               imgName=imgName[idx],
                               save_path=self.save_path)
-        results = {"loss":loss, "pcc": pcc_list, "ssim": ssim_list, "psnr": psnr_list, "mse": mse_list, "imgName": imgName}
+        results = {"loss":loss, "pcc": pcc_list, "ssim": ssim_list, "psnr": psnr_list, "mse": mse_list, "metal_size": metal_list, "imgName": imgName}
         self.testing_step_outputs.append(results)
         return results
     
     def on_test_epoch_end(self) -> None:
-        loss_list, pcc_list, ssim_list, psnr_list, mse_list, name_list = [], [], [], [], [], []
-        scores_json={}
+        loss_list, pcc_list, ssim_list, psnr_list, mse_list, metal_list, name_list = [], [], [], [], [], [], []
         for output in self.testing_step_outputs:
             loss_list.append(output["loss"].item())
             pcc_list.extend(output["pcc"])
             ssim_list.extend(output["ssim"])
             psnr_list.extend(output["psnr"])
             mse_list.extend(output["mse"])
+            metal_list.extend(output["metal_size"])
             name_list.extend(output["imgName"])
-        for i in range(len(name_list)):    
-            scores_json[name_list[i]] = {"pcc": pcc_list[i], "ssim": ssim_list[i], "psnr": psnr_list[i], "mse": mse_list[i]}
         print("------------------")
         print("Evaluation Result")
         print(f"pcc: {np.mean(pcc_list)}")
         print(f"ssim: {np.mean(ssim_list)}")
         print(f"psnr: {np.mean(psnr_list)}")
         print(f"mse: {np.mean(mse_list)}")
-        
-        # file_path = os.path.join("%s/test_dcm/%s" % (self.test_save_path, self.save_path.split('/')[-3]), f"0_test_score.json")
-        # with open(file_path, 'w') as outfile:
-        #     json.dump(scores_json, outfile, indent=4)
+        df = pd.DataFrame({"fname": name_list, "pcc":pcc_list, "ssim":ssim_list, "psnr":psnr_list, "mse":mse_list, "metal_size": metal_list})
+        df.to_csv(os.path.join(self.test_save_path, "test_dcm", self.save_path.split('/')[-3]+".csv"))
         
     def predict_step(self, batch, batch_idx) -> None:
         input_, imgName = batch

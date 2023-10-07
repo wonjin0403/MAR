@@ -124,6 +124,7 @@ class Masked_CT_Dataset(Dataset):
         ###########################################################
         
         a1 = np.where(a1<4095, 0 , a1) # metal input threshold 4095
+        metal_size = a1.sum()
         inserted = a1 + a2 # threshold metal + full_image
         inserted_img = np.where(inserted > 4095, 4095, inserted)
         inserted_img = inserted_img * face_m
@@ -170,4 +171,4 @@ class Masked_CT_Dataset(Dataset):
 
         
         # return input_, target_, os.path.basename(img_path)
-        return input_, target_, bone1, bone2, os.path.basename(img_path)
+        return input_, target_, bone1, bone2, metal_size, os.path.basename(img_path)

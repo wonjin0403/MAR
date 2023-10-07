@@ -1,6 +1,6 @@
 MAR_PATH="./src/output/baseline_Fusionnet"
 FOLD_PATH="/app/home/jhk22/MAR/HN-CT-MAR/codes/final_all_data_1_fold.json"
-MODEL_PATH="'./src/output/baseline_Fusionnet/lightning_logs/version_9/checkpoints/epoch=92-step=286440.ckpt'"
+MODEL_PATH="'./src/output/baseline_Fusionnet/lightning_logs/version_13/checkpoints/epoch=45-step=141680.ckpt'"
 
 python ./src/core/test/main.py \
 save_path="$MAR_PATH" \
