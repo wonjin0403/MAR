@@ -28,7 +28,7 @@ class MSE_SSIM_Loss(torch.nn.Module):
         return loss
 
 class Masked_MSE_SSIM_Loss(torch.nn.Module):
-    def __init__(self, ssim_rate: float=0.1, tissue_rate: float=10., device: str=None) ->None:
+    def __init__(self, ssim_rate: float=0.1, tissue_rate: float=9., device: str=None) ->None:
         super(Masked_MSE_SSIM_Loss, self).__init__()
         self.recon_loss = torch.nn.MSELoss()
         self.ssim_loss = ssim_loss.SSIM(torch_device=device)
@@ -39,9 +39,9 @@ class Masked_MSE_SSIM_Loss(torch.nn.Module):
         loss1_bone1 = self.recon_loss(output, target)
         loss1_bone2 = self.recon_loss(output * tissue_mask, target * tissue_mask)
 
-        loss1 = loss1_bone1 + self.tissue_rate * loss1_bone2    
+        loss1 = (loss1_bone1 + self.tissue_rate * loss1_bone2  ) / (self.tissue_rate+1)  
         loss2 = self.ssim_loss(output, target) #* self.ssim_rate     # MSE + ssim loss
         loss = loss1 + self.ssim_rate * loss2
-        return loss
+        return loss #, loss1_bone1, loss1_bone2
     
     

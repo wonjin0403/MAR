@@ -1,6 +1,6 @@
 MAR_PATH="./src/output/masked_mse"
 FOLD_PATH="/app/home/jhk22/MAR/HN-CT-MAR/codes/final_all_data_1_fold.json"
-MODEL_PATH="'./src/output/masked_mse/lightning_logs/version_61/back_up_0005/epoch=111-step=344960.ckpt'"
+MODEL_PATH="'/app/data2/jhk22/MAR/src/output/masked_mse/lightning_logs/version_98/checkpoints/epoch=epoch=31-step=step=98560-metrics=valid/metrics=-0.98.ckpt'"
 
 python ./src/core/predict/main.py \
 save_path="$MAR_PATH" \

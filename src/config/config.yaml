@@ -24,4 +24,5 @@ Trainer:
     _target_: lightning.pytorch.callbacks.ModelCheckpoint
     monitor: "valid/metrics"
     mode: "min"
-    auto_insert_metric_name: True
+    filename: "epoch={epoch}-step={step}-metrics={valid/metrics:.2f}"
+    auto_insert_metric_name: 1

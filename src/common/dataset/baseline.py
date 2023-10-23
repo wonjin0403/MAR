@@ -33,8 +33,25 @@ class CT_Dataset(Dataset):
         self.img_paths = img_paths
         self.transform=transform
         if dataset_type=="Train":
+            # self.transform = Compose([
+            #     RandCoarseDropout(holes=50, spatial_size=10, dropout_holes=True, fill_value=0, max_holes=100, max_spatial_size=20, prob=0.3),
+            #     OneOf([
+            #         RandRotate(range_x=[0.1, 6.2], prob=0.3),
+            #         RandZoom(min_zoom=0.5, max_zoom=5.0, prob=0.3),
+            #         RandFlip(spatial_axis=1, prob=0.3),
+            #     ]),
+            #     Rand2DElastic(
+            #         prob=0.5,
+            #         spacing=(10, 20), # distance between control point
+            #         magnitude_range=(1,7),  # 1~7
+            #         rotate_range=(0),# ~ np.pi
+            #         scale_range=(0), # 0.5 넘지 않게
+            #         translate_range=(0,100), # 위 아래, 양 옆 이동
+            #         padding_mode="zeros"
+            #         )
+            # ])
             self.transform = Compose([
-                RandCoarseDropout(holes=50, spatial_size=10, dropout_holes=True, fill_value=0, max_holes=100, max_spatial_size=20, prob=0.3),
+                RandCoarseDropout(holes=50, spatial_size=10, dropout_holes=True, fill_value=-1, max_holes=100, max_spatial_size=20, prob=0.3),
                 OneOf([
                     RandRotate(range_x=[0.1, 6.2], prob=0.3),
                     RandZoom(min_zoom=0.5, max_zoom=5.0, prob=0.3),
@@ -47,9 +64,10 @@ class CT_Dataset(Dataset):
                     rotate_range=(0),# ~ np.pi
                     scale_range=(0), # 0.5 넘지 않게
                     translate_range=(0,100), # 위 아래, 양 옆 이동
-                    padding_mode="zeros"
+                    padding_mode="nearest"
                     )
-            ]) 
+            ])
+                        
         self.torch_type = torch.float32# if torch_type == float else torch.half # float32 or float16
         self.face_mask = "/app/home/jhk22/MAR/data/only_mask_230128"
         self.data_type = data_type
@@ -102,9 +120,9 @@ class CT_Dataset(Dataset):
         metal_size = a1.sum()
         inserted = a1 + a2 # threshold metal + full_image
         inserted_img = np.where(inserted > 4095, 4095, inserted) 
-        inserted_img = inserted_img * face_m
+        inserted_img = inserted_img
         
-        input_np = min_max_normalization(img[:, 512*2: 512*3]*face_m, min_new=-1.0, max_new=1.0)
+        input_np = min_max_normalization(img[:, 512*2: 512*3], min_new=-1.0, max_new=1.0)
         # input_np_black = min_max_normalization(img[:, 512*4:512*5], min_new=-1.0, max_new=1.0)
         target_np = min_max_normalization(inserted_img, min_new=-1.0, max_new=1.0)#img[:, 512*4: 512*5])
 
@@ -125,3 +143,15 @@ class CT_Dataset(Dataset):
             self.transform.set_random_state(seed=a[0])
             mask_ = self.transform(mask_)
         return input_, target_, mask_, metal_size, os.path.basename(img_path)
+    
+if __name__=="__main__":   
+    dataset = CT_Dataset(fold_path= "/app/home/jhk22/MAR/HN-CT-MAR/codes/final_all_data_1_fold.json",
+                                dataset_type= "Test",
+                                data_type= "npy",
+                                infer= False)
+    
+    input_, target_, mask_, metal_size, _ = dataset[0]
+    print(((input_+1)/2*255)[0, 0, 0])
+    cv2.imwrite("input.png", ((input_+1)/2*255).permute(1,2,0).numpy())
+    cv2.imwrite("target.png", ((target_+1)/2*255).permute(1,2,0).numpy())
+    cv2.imwrite("mask_.png", (mask_*255).permute(1,2,0).numpy())

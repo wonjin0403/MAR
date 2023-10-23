@@ -82,7 +82,7 @@ class Infer_CT_Dataset(Dataset):
     def _loader(self, idx):
         img_path = self.img_paths[idx]
         if self.data_type == "dicom":
-            img = dcm.dcmread(img_path).pixel_array
+            img = dcm.dcmread(img_path, force=True).pixel_array
         else:
             img = np.load(img_path)
 

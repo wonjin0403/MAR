@@ -59,7 +59,7 @@ class MAR(pl.LightningModule):
         print(f"load checkpoint from {path}")
     
     def configure_optimizers(self):
-        return self.optimizer
+        return self.optimizer #{"optimizer": self.optimizer, "lr_scheduler": self.scheduler}
     
     def lr_scheduler_step(self, scheduler, metric):
         self.scheduler.step(epoch=self.current_epoch) 

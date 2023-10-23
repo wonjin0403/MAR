@@ -34,7 +34,7 @@ class Masked_CT_Dataset(Dataset):
         self.transform=transform
         if dataset_type=="Train":
             self.transform = Compose([
-                RandCoarseDropout(holes=50, spatial_size=10, dropout_holes=True, fill_value=0, max_holes=100, max_spatial_size=20, prob=0.3),
+                RandCoarseDropout(holes=50, spatial_size=10, dropout_holes=True, fill_value=-1, max_holes=100, max_spatial_size=20, prob=0.3),
                 OneOf([
                     RandRotate(range_x=[0.1, 6.2], prob=0.3),
                     RandZoom(min_zoom=0.5, max_zoom=5.0, prob=0.3),
@@ -47,7 +47,7 @@ class Masked_CT_Dataset(Dataset):
                     rotate_range=(0),# ~ np.pi
                     scale_range=(0), # 0.5 넘지 않게
                     translate_range=(0,100), # 위 아래, 양 옆 이동
-                    padding_mode="zeros"
+                    padding_mode="nearest"
                     )
             ])
         self.bone_mask = "/app/home/jhk22/MAR/data/mask_all_data"
@@ -105,11 +105,17 @@ class Masked_CT_Dataset(Dataset):
         a2 = img[:, 512*3: 512*4] #target
         # mask = img[:, 512*4:] #mask
         
+        ################################얼굴 마스크
+        face_path = os.path.join(self.face_mask, os.path.basename(img_path)[-17:-4])
+        face = self.read_face_mask(face_path.rsplit(".", 1)[0]+".png", a2)
+        face_m = np.where(face > 0, 1, np.zeros(face.shape))
+        ###########################################################
+        
         ################################기존 코드
         bone_path = os.path.join(self.bone_mask, os.path.basename(img_path))
         bone = self.read_bone_mask(bone_path.rsplit(".", 1)[0]+".png", a2)
         bone1 = np.where(bone > 0, 1, np.zeros(bone.shape))
-        bone2 = np.where(bone==0, 1, np.zeros(bone.shape))
+        bone2 = np.where(bone==0, 1, np.zeros(bone.shape)) * face_m
         ###########################################################
         # ##################################변경 코드
         # bone_path = os.path.join(self.bone_mask_new, os.path.basename(img_path)[-17:-4])
@@ -117,19 +123,14 @@ class Masked_CT_Dataset(Dataset):
         # bone1 = np.where(bone > 0, 1, np.zeros(bone.shape))
         # bone2 = np.where(bone==0, 1, np.zeros(bone.shape))
         # ################################
-        ################################얼굴 마스크
-        face_path = os.path.join(self.face_mask, os.path.basename(img_path)[-17:-4])
-        face = self.read_face_mask(face_path.rsplit(".", 1)[0]+".png", a2)
-        face_m = np.where(face > 0, 1, np.zeros(face.shape))
-        ###########################################################
+
         
         a1 = np.where(a1<4095, 0 , a1) # metal input threshold 4095
         metal_size = a1.sum()
         inserted = a1 + a2 # threshold metal + full_image
         inserted_img = np.where(inserted > 4095, 4095, inserted)
-        inserted_img = inserted_img * face_m
 
-        input_np = min_max_normalization((img[:, 512*2: 512*3])*face_m, min_new=-1.0, max_new=1.0)
+        input_np = min_max_normalization((img[:, 512*2: 512*3]), min_new=-1.0, max_new=1.0)
         # input_np_black = min_max_normalization(img[:, 512*4:512*5], min_new=-1.0, max_new=1.0)
         target_np = min_max_normalization(inserted_img, min_new=-1.0, max_new=1.0)#img[:, 512*4: 512*5])
 
@@ -171,4 +172,19 @@ class Masked_CT_Dataset(Dataset):
 
         
         # return input_, target_, os.path.basename(img_path)
-        return input_, target_, bone1, bone2, metal_size, os.path.basename(img_path)
+        # return input_, target_, bone1, bone2, metal_size, os.path.basename(img_path)
+        return input_, target_, 0, bone2, metal_size, os.path.basename(img_path)
+    
+
+if __name__=="__main__":
+    dataset = Masked_CT_Dataset(fold_path= "/app/home/jhk22/MAR/HN-CT-MAR/codes/final_all_data_1_fold.json",
+                                dataset_type= "Test",
+                                data_type= "npy",
+                                infer= False)
+    
+    input_, target_, bone1, bone2, metal_size, _ = dataset[0]
+    print(((input_+1)/2*255)[0, 0, 0])
+    cv2.imwrite("input.png", ((input_+1)/2*255).permute(1,2,0).numpy())
+    cv2.imwrite("target.png", ((target_+1)/2*255).permute(1,2,0).numpy())
+    cv2.imwrite("bone1.png", (bone1*255).permute(1,2,0).numpy())
+    cv2.imwrite("bone2.png", (bone2*255).permute(1,2,0).numpy())

@@ -59,7 +59,7 @@ class MAR(pl.LightningModule):
         print(f"load checkpoint from {path}")
     
     def configure_optimizers(self):
-        return self.optimizer
+        return self.optimizer #{"optimizer": self.optimizer, "lr_scheduler": self.scheduler}
     
     def lr_scheduler_step(self, scheduler, metric):
         self.scheduler.step(epoch=self.current_epoch) 
@@ -69,10 +69,10 @@ class MAR(pl.LightningModule):
         return output
     
     def _metric(self, target, output):
-        _pcc = pearson_correlation_coeff(target, output)
-        _ssim = compare_ssim(np.moveaxis(target, 0, -1), np.moveaxis(output, 0, -1), multichannel=True, channel_axis=2, data_range=float(2))
-        _psnr = compare_psnr(target, output, data_range=2)
-        _mse = (np.square(target - output)).mean(axis=None)
+        _pcc = pearson_correlation_coeff(target[:,:,160:-180,180:-180], output[:,:,160:-180,180:-180])
+        _ssim = compare_ssim(np.moveaxis(target[:,:,160:-180,180:-180], 0, -1), np.moveaxis(output[:,:,160:-180,180:-180], 0, -1), multichannel=True, channel_axis=2, data_range=float(2))
+        _psnr = compare_psnr(target[:,:,160:-180,180:-180], output[:,:,160:-180,180:-180], data_range=2)
+        _mse = (np.square(target[:,:,160:-180,180:-180] - output[:,:,160:-180,180:-180])).mean(axis=None)
         metrics = 100*_mse + (-1*_ssim)
         return _pcc, _ssim, _psnr, _mse, metrics
 
@@ -81,6 +81,8 @@ class MAR(pl.LightningModule):
         output_ = self.step(input_)
         loss = self.criterion(output_, target_, tissue_mask_)
         self.log("train/loss", loss, on_epoch=True, sync_dist=True, batch_size=self.batch_size)
+        # self.log("train/loss_mse", loss_all, on_epoch=True, sync_dist=True, batch_size=self.batch_size)
+        # self.log("train/loss_tissue_mse", loss_tissue, on_epoch=True, sync_dist=True, batch_size=self.batch_size)
         self.log('train/learning rate', self.scheduler.get_last_lr()[0], on_epoch=True, batch_size=self.batch_size)
         return {"loss":loss}
     
@@ -106,9 +108,11 @@ class MAR(pl.LightningModule):
         return results
     
     def on_validation_epoch_end(self) -> None:
-        loss_list, pcc_list, ssim_list, psnr_list, mse_list, metrics_list = [], [], [], [], [], []
+        loss_list, loss_all_list, loss_tissue_list, pcc_list, ssim_list, psnr_list, mse_list, metrics_list = [], [], [], [], [], [], [], []
         for output in self.validation_step_outputs:
             loss_list.append(output["val_loss"].item())
+            # loss_all_list.append(output["val_mse"].item())
+            # loss_tissue_list.append(output["val_tissue_mse"].item())
             pcc_list.extend(output["pcc"])
             ssim_list.extend(output["ssim"])
             psnr_list.extend(output["psnr"])
@@ -116,6 +120,8 @@ class MAR(pl.LightningModule):
             metrics_list.extend(output["metrics"])
         self.validation_step_outputs.clear()
         self.log("valid/loss", np.mean(loss_list), on_epoch=True, sync_dist=True)
+        # self.log("valid/loss_mse", np.mean(loss_all_list), on_epoch=True, sync_dist=True)
+        # self.log("valid/loss_tissue_mse", np.mean(loss_tissue_list), on_epoch=True, sync_dist=True)
         self.log("valid/pcc", np.mean(pcc_list), on_epoch=True, sync_dist=True)
         self.log("valid/ssim", np.mean(ssim_list), on_epoch=True, sync_dist=True)
         self.log("valid/psnr", np.mean(psnr_list), on_epoch=True, sync_dist=True)
